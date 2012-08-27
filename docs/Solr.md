@@ -32,7 +32,7 @@ by the user the Solr search server is started with (see below).
 		'host' => 'localhost',
 		'indexstore' => array(
 			'mode' => 'file',
-			'path' => BASE_PATH . '/fulltextsearch/thirdparty/fulltextsearch/server/solr'
+			'path' => BASE_PATH . '/fulltextsearch/thirdparty/solr/server/solr'
 		)
 	));
 
@@ -49,7 +49,7 @@ Create an index
 
 Start the search server (via CLI, in a separate terminal window or background process)
 
-	cd fulltextsearch/thirdparty/fulltextsearch/server/
+	cd fulltextsearch/thirdparty/solr/server/
 	java -jar start.jar
 
 Initialize the configuration (via CLI)
@@ -87,6 +87,6 @@ There you can search the contents of the index via the native SOLR web interface
 It is possible to manually replicate the data automatically sent 
 to Solr when saving/publishing in SilverStripe, 
 which is useful when debugging front-end queries, 
-see `thirdparty/fulltextsearch/server/silverstripe-solr-test.xml`.
+see `thirdparty/solr/server/silverstripe-solr-test.xml`.
 
 	java -Durl=http://localhost:8983/solr/MyIndex/update/ -Dtype=text/xml -jar post.jar silverstripe-solr-test.xml

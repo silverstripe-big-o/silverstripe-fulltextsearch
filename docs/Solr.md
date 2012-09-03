@@ -129,6 +129,23 @@ The searched term is highlighted with an `<em>` tag by default.
 Note: It is recommended to strip out all HTML tags and convert entities on the indexed content,
 to avoid matching HTML attributes, and cluttering highlighted content with unparsed HTML.
 
+### Custom Types
+
+Solr supports custom field type definitions which are written to its XML schema.
+Many standard ones are already included in the default schema.
+As the XML file is generated dynamically, we can add our own types
+by overloading the template responsible for it: `types.ss`.
+
+In the following example, we read out type definitions
+from a new file `mysite/solr/templates/types.ss` instead:
+
+	<?php
+	class MyIndex extends SolrIndex {
+		function getTypes() {
+			return $this->renderWith(Director::baseFolder() . '/mysite/solr/templates/types.ss');
+		}
+	}
+
 ## Debugging
 
 ### Using the web admin interface

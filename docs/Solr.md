@@ -70,6 +70,7 @@ This will rebuild all indices. You can narrow down the operation with the follow
  - `start`: Offset (applies to matched records)
  - `variantstate`: JSON encoded string with state, e.g. '{"SearchVariantVersioned":"Stage"}'
  - `verbose`: Debug information
+ - `keepindex`: If set to "true", won't clean existing index entries.
 
 Note: The Solr indexes will be stored as binary files inside your SilverStripe project. 
 You can also copy the `thirdparty/`solr directory somewhere else,

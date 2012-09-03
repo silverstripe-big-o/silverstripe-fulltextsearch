@@ -159,12 +159,14 @@ class Solr_Configure extends BuildTask {
 }
 
 class Solr_Reindex extends BuildTask {
+	
 	static $recordsPerRequest = 200;
 
 	public function run($request) {
 		increase_time_limit_to();
 		$self = get_class($this);
-		$verbose = isset($_GET['verbose']);
+		$verbose = (isset($_GET['verbose']) && (bool)$_GET['verbose']);
+		$keepindex = (isset($_GET['keepindex']) && (bool)$_GET['keepindex']);
 
 		$originalState = SearchVariant::current_state();
 
@@ -189,7 +191,7 @@ class Solr_Reindex extends BuildTask {
 					$classes = array_intersect_key($classes, array_combine($limitClasses, $limitClasses));
 				}
 
-				Solr::service($index)->deleteByQuery('ClassHierarchy:(' . implode(' OR ', array_keys($classes)) . ')');
+				if(!$keepindex) Solr::service($index)->deleteByQuery('ClassHierarchy:(' . implode(' OR ', array_keys($classes)) . ')');
 
 				foreach ($classes as $class => $options) {
 					$includeSubclasses = $options['include_children'];

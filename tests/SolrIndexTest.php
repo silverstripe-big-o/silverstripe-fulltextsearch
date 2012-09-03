@@ -8,9 +8,9 @@ class SolrIndexTest extends SapphireTest {
 	}
 	
 	function testBoost() {
-		$serviceMock = $this->getServiceMock();
+		$serviceSpy = $this->getServiceSpy();
 		$index = new SolrIndexTest_FakeIndex();
-		$index->setService($serviceMock);
+		$index->setService($serviceSpy);
 
 		$query = new SearchQuery();
 		$query->search(
@@ -20,16 +20,16 @@ class SolrIndexTest extends SapphireTest {
 		);
 		$index->search($query);
 
-		Phockito::verify($serviceMock)->search(
+		Phockito::verify($serviceSpy)->search(
 			'+(Field1:term^1.5 OR HasOneObject_Field1:term^3)',
 			anything(), anything(), anything(), anything()
 		);
 	}
 
 	function testIndexExcludesNullValues() {
-		$serviceMock = $this->getServiceMock();
+		$serviceSpy = $this->getServiceSpy();
 		$index = new SolrIndexTest_FakeIndex();
-		$index->setService($serviceMock);		
+		$index->setService($serviceSpy);		
 		$obj = new SearchUpdaterTest_Container();
 
 		$obj->Field1 = 'Field1 val';
@@ -82,15 +82,19 @@ class SolrIndexTest extends SapphireTest {
 		$this->assertEquals('solr.HTMLStripCharFilterFactory', $analyzers[0]->charFilter[0]['class']);
 	}
 
-	protected function getServiceMock() {
-		$serviceMock = Phockito::mock('SolrService');
+	protected function getServiceSpy() {
+		$serviceSpy = Phockito::spy('SolrService');
 		$fakeResponse = new Apache_Solr_Response(new Apache_Solr_HttpTransport_Response(null, null, null));
 
-		Phockito::when($serviceMock)
+		Phockito::when($serviceSpy)
 			->_sendRawPost(anything(), anything(), anything(), anything())
 			->return($fakeResponse);
 
-		return $serviceMock;
+		Phockito::when($serviceSpy)
+			->_sendRawGet(anything())
+			->return($fakeResponse);
+
+		return $serviceSpy;
 	}
 
 }

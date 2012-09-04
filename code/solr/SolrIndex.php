@@ -116,7 +116,7 @@ abstract class SolrIndex extends SearchIndex {
 				'type' => $type, 
 				'indexed' => 'true', 
 				'stored' => Director::isDev() ? 'true' : 'false', 
-				'multivalued' => $multiValued
+				'multiValued' => $multiValued
 			),
 			isset($spec['extra_options']) ? $spec['extra_options'] : array()
 		);

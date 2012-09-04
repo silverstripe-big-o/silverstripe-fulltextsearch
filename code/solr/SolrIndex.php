@@ -102,6 +102,8 @@ abstract class SolrIndex extends SearchIndex {
 		$type = isset(self::$filterTypeMap[$field['type']]) ? self::$filterTypeMap[$field['type']] : self::$filterTypeMap['*'];
 
 		if (is_array($value)) foreach($value as $sub) {
+			if(is_object($sub) && $sub instanceof DBField) $sub = $sub->getValue();
+
 			/* Solr requires dates in the form 1995-12-31T23:59:59Z */
 			if ($type == 'tdate') $sub = gmdate('Y-m-d\TH:i:s\Z', strtotime($sub));
 			/* Solr requires numbers to be valid if presented, not just empty */
@@ -111,6 +113,8 @@ abstract class SolrIndex extends SearchIndex {
 		}
 
 		else {
+			if(is_object($value) && $value instanceof DBField) $value = $value->getValue();
+
 			/* Solr requires dates in the form 1995-12-31T23:59:59Z */
 			if ($type == 'tdate') $value = gmdate('Y-m-d\TH:i:s\Z', strtotime($value));
 			/* Solr requires numbers to be valid if presented, not just empty */

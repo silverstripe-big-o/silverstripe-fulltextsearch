@@ -29,6 +29,9 @@ abstract class SolrIndex extends SearchIndex {
 	protected $extrasPath = null;
 
 	protected $templatesPath = null;
+
+	protected $copyFields = array();
+
 	/**
 	 * @return String Absolute path to the folder containing
 	 * templates which are used for generating the schema and field definitions.
@@ -166,11 +169,26 @@ abstract class SolrIndex extends SearchIndex {
 		return $xml;
 	}
 
+	/**
+	 * @param String $source Composite field name (<class>_<fieldname>)
+	 * @param String $dest
+	 */
+	function addCopyField($source, $dest) {
+		if(!isset($this->copyFields[$source])) $this->copyFields[$source] = array();
+		$this->copyFields[$source][] = $dest;
+	}
+
 	function getCopyFieldDefinitions() {
 		$xml = array();
 
 		foreach ($this->fulltextFields as $name => $field) {
 			$xml[] = "<copyField source='{$name}' dest='_text' />";
+		}
+
+		foreach ($this->copyFields as $source => $dests) {
+			foreach($dests as $dest) {
+				if($dest) $xml[] = "<copyField source='{$source}' dest='{$dest}' />";
+			}
 		}
 
 		return implode("\n\t", $xml);

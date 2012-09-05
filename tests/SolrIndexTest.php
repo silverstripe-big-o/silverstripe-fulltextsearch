@@ -130,10 +130,11 @@ class SolrIndexTest extends SapphireTest {
 	function testAddCopyField() {
 		$index = new SolrIndexTest_FakeIndex();		
 		$index->addCopyField('sourceField', 'destField');
-		$this->assertContains(
-			'<copyField source=\'sourceField\' dest=\'destField\' />',
-			$index->getCopyFieldDefinitions()
-		);
+		$defs = simplexml_load_string('<fields>' . $index->getCopyFieldDefinitions() . '</fields>');
+		$lastDef = array_pop($defs);
+
+		$this->assertEquals('sourceField', $lastDef['source']);
+		$this->assertEquals('destField', $lastDef['dest']);
 	}
 
 	protected function getServiceSpy() {

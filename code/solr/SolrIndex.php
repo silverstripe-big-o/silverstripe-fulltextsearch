@@ -174,9 +174,12 @@ abstract class SolrIndex extends SearchIndex {
 	 * @param String $source Composite field name (<class>_<fieldname>)
 	 * @param String $dest
 	 */
-	function addCopyField($source, $dest) {
+	function addCopyField($source, $dest, $extraOptions = array()) {
 		if(!isset($this->copyFields[$source])) $this->copyFields[$source] = array();
-		$this->copyFields[$source][] = $dest;
+		$this->copyFields[$source][] = array_merge(
+			array('source' => $source, 'dest' => $dest),
+			$extraOptions
+		);
 	}
 
 	function getCopyFieldDefinitions() {
@@ -186,9 +189,9 @@ abstract class SolrIndex extends SearchIndex {
 			$xml[] = "<copyField source='{$name}' dest='_text' />";
 		}
 
-		foreach ($this->copyFields as $source => $dests) {
-			foreach($dests as $dest) {
-				if($dest) $xml[] = "<copyField source='{$source}' dest='{$dest}' />";
+		foreach ($this->copyFields as $source => $fields) {
+			foreach($fields as $fieldAttrs) {
+				$xml[] = $this->toXmlTag('copyField', $fieldAttrs);
 			}
 		}
 

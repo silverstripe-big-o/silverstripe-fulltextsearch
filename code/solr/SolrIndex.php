@@ -26,8 +26,27 @@ abstract class SolrIndex extends SearchIndex {
 
 	protected $analyzerFields = array();
 
+	protected $extrasPath = null;
+
+	protected $templatesPath = null;
+	/**
+	 * @return String Absolute path to the folder containing
+	 * templates which are used for generating the schema and field definitions.
+	 */
+	function getTemplatesPath() {
+		return $this->templatesPath ? $this->templatesPath : Solr::$solr_options['templatespath'];
+	}
+
+	/**
+	 * @return String Absolute path to the configuration default files,
+	 * e.g. solrconfig.xml.
+	 */
+	function getExtrasPath() {
+		return $this->extrasPath ? $this->extrasPath : Solr::$solr_options['extraspath'];
+	}
+
 	function generateSchema() {
-		return $this->renderWith(Director::baseFolder() . '/fulltextsearch/conf/templates/schema.ss');
+		return $this->renderWith($this->getTemplatesPath() . '/schema.ss');
 	}
 
 	function getIndexName() {
@@ -35,7 +54,7 @@ abstract class SolrIndex extends SearchIndex {
 	}
 
 	function getTypes() {
-		return $this->renderWith(Director::baseFolder() . '/fulltextsearch/conf/templates/types.ss');
+		return $this->renderWith($this->getTemplatesPath() . '/types.ss');
 	}
 
 	/**

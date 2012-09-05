@@ -8,21 +8,66 @@ class SolrIndexTest extends SapphireTest {
 	}
 	
 	function testBoost() {
-		$serviceSpy = $this->getServiceSpy();
 		$index = new SolrIndexTest_FakeIndex();
-		$index->setService($serviceSpy);
-
+		
 		$query = new SearchQuery();
 		$query->search(
 			'term', 
 			null, 
 			array('Field1' => 1.5, 'HasOneObject_Field1' => 3)
 		);
-		$index->search($query);
-
-		Phockito::verify($serviceSpy)->search(
+		$params = $index->getQueryParams($query);
+		$this->assertEquals(
 			'+(Field1:term^1.5 OR HasOneObject_Field1:term^3)',
-			anything(), anything(), anything(), anything()
+			$params['q']
+		);
+	}
+
+	function testBooleanQueries() {
+		$index = new SolrIndexTest_FakeIndex();
+		
+		$query = new SearchQuery();
+		$query->search('term1 AND term2');
+		$params = $index->getQueryParams($query);
+		$this->assertEquals(
+			'term1 AND term2',
+			$params['q']
+		);
+
+		$query = new SearchQuery();
+		$query->search('term1 and term2');
+		$params = $index->getQueryParams($query);
+		$this->assertEquals(
+			'+term1 +and +term2',
+			$params['q']
+		);
+
+		$query = new SearchQuery();
+		$query->search('term1  AND  term2 NOT term3');
+		$params = $index->getQueryParams($query);
+		$this->assertEquals(
+			'term1 AND term2 NOT term3',
+			$params['q']
+		);
+
+		$query = new SearchQuery();
+		$query->search('term1 -term2');
+		$params = $index->getQueryParams($query);
+		$this->assertEquals(
+			'+term1 -term2',
+			$params['q']
+		);
+	}
+
+	function testPhraseQueries() {
+		$index = new SolrIndexTest_FakeIndex();
+
+		$query = new SearchQuery();
+		$query->search('"term1 term2" term3');
+		$params = $index->getQueryParams($query);
+		$this->assertEquals(
+			'+"term1 term2" +term3',
+			$params['q']
 		);
 	}
 
@@ -85,11 +130,10 @@ class SolrIndexTest extends SapphireTest {
 	function testAddCopyField() {
 		$index = new SolrIndexTest_FakeIndex();		
 		$index->addCopyField('sourceField', 'destField');
-		$defs = simplexml_load_string('<fields>' . $index->getCopyFieldDefinitions() . '</fields>');
-		$lastDef = array_pop($defs);
-
-		$this->assertEquals('sourceField', $lastDef['source']);
-		$this->assertEquals('destField', $lastDef['dest']);
+		$this->assertContains(
+			'<copyField source=\'sourceField\' dest=\'destField\' />',
+			$index->getCopyFieldDefinitions()
+		);
 	}
 
 	protected function getServiceSpy() {

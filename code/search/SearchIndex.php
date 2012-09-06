@@ -44,6 +44,18 @@ abstract class SearchIndex extends ViewableData {
 	}
 
 	/**
+	 * A unique name for this index. Defaults to the class name,
+	 * but can be something more specific, for example in case multiple
+	 * webroots with the same index classes are hosted in the same environment,
+	 * causing index naming conflicts.
+	 * 
+	 * @return String
+	 */
+	function getName() {
+		return get_class($this);
+	}
+
+	/**
 	 * Examines the classes this index is built on to try and find defined fields in the class hierarchy for those classes.
 	 * Looks for db and viewable-data fields, although can't nessecarily find type for viewable-data fields.
 	 */

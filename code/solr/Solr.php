@@ -100,8 +100,9 @@ class Solr_Configure extends BuildTask {
 				$remote = isset($index['remotepath']) ? $index['remotepath'] : $local;
 				
 				foreach (Solr::get_indexes() as $index => $instance) {
+					$indexName = $instance->getName();
 					$sourceDir = $instance->getExtrasPath();
-					$targetDir = "$local/$index/conf";
+					$targetDir = "$local/$indexName/conf";
 					if (!is_dir($targetDir)) mkdir($targetDir, 0770, true);
 
 					file_put_contents("$targetDir/schema.xml", $instance->generateSchema());
@@ -126,6 +127,7 @@ class Solr_Configure extends BuildTask {
 				$remote = $index['remotepath'];
 
 				foreach (Solr::get_indexes() as $index => $instance) {
+					$indexName = $instance->getName();
 					$indexdir = "$url/$index";
 					if (!WebDAV::exists($indexdir)) WebDAV::mkdir($indexdir);
 
@@ -148,13 +150,13 @@ class Solr_Configure extends BuildTask {
 				user_error('Unknown Solr index mode '.$index['mode'], E_USER_ERROR);
 		}
 
-		if ($service->coreIsActive($index)) {
+		if ($service->coreIsActive($indexName)) {
 			echo "Reloading configuration...";
-			$service->coreReload($index);
+			$service->coreReload($indexName);
 			echo "done\n";
 		} else {
 			echo "Creating configuration...";
-			$service->coreCreate($index, "$remote/$index");
+			$service->coreCreate($indexName, "$remote/" . $indexName);
 			echo "done\n";
 		}
 	}
@@ -193,7 +195,7 @@ class Solr_Reindex extends BuildTask {
 					$classes = array_intersect_key($classes, array_combine($limitClasses, $limitClasses));
 				}
 
-				if(!$keepindex) Solr::service($index)->deleteByQuery('ClassHierarchy:(' . implode(' OR ', array_keys($classes)) . ')');
+				if(!$keepindex) Solr::service($instance->getName())->deleteByQuery('ClassHierarchy:(' . implode(' OR ', array_keys($classes)) . ')');
 
 				foreach ($classes as $class => $options) {
 					$includeSubclasses = $options['include_children'];
@@ -227,12 +229,12 @@ class Solr_Reindex extends BuildTask {
 							if($verbose) echo "  ".preg_replace('/\r\n|\n/', '$0  ', $res)."\n";
 
 							// If we're in dev mode, commit more often for fun and profit
-							if (Director::isDev()) Solr::service($index)->commit();
+							if (Director::isDev()) Solr::service($instance->getName())->commit();
 						}
 					}
 				}
 
-				Solr::service($index)->commit();
+				Solr::service($instance->getName())->commit();
 			}
 		}
 

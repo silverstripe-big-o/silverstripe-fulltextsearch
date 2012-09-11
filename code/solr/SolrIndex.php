@@ -284,7 +284,7 @@ abstract class SolrIndex extends SearchIndex {
 	}
 
 	function commit() {
-		$this->getService()->commit(false, false, false);
+		$this->getService()->commit();
 	}
 
 	/**

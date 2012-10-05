@@ -80,6 +80,7 @@ abstract class SolrIndex extends SearchIndex {
 
 	function getFieldDefinitions() {
 		$xml = array();
+		$stored = Director::isDev() ? "stored='true'" : "stored='false'";
 
 		$xml[] = "";
 
@@ -93,7 +94,7 @@ abstract class SolrIndex extends SearchIndex {
 
 		// Add the fulltext collation field
 
-		$xml[] = "<field name='_text' type='htmltext' indexed='true' stored='true' multiValued='true' />" ;
+		$xml[] = "<field name='_text' type='htmltext' indexed='true' $stored multiValued='true' />" ;
 
 		// Add the user-specified fields
 

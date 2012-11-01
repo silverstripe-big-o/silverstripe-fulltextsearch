@@ -87,6 +87,7 @@ class Solr_Configure extends BuildTask {
 
 	public function run($request) {
 		$service = Solr::service();
+		$indexes = Solr::get_indexes();
 
 		if (!isset(Solr::$solr_options['indexstore']) || !($index = Solr::$solr_options['indexstore'])) {
 			user_error('No index configuration for Solr provided', E_USER_ERROR);
@@ -99,7 +100,7 @@ class Solr_Configure extends BuildTask {
 				$local = $index['path'];
 				$remote = isset($index['remotepath']) ? $index['remotepath'] : $local;
 				
-				foreach (Solr::get_indexes() as $index => $instance) {
+				foreach ($indexes as $index => $instance) {
 					$indexName = $instance->getName();
 					$sourceDir = $instance->getExtrasPath();
 					$targetDir = "$local/$indexName/conf";
@@ -150,14 +151,18 @@ class Solr_Configure extends BuildTask {
 				user_error('Unknown Solr index mode '.$index['mode'], E_USER_ERROR);
 		}
 
-		if ($service->coreIsActive($indexName)) {
-			echo "Reloading configuration...";
-			$service->coreReload($indexName);
-			echo "done\n";
-		} else {
-			echo "Creating configuration...";
-			$service->coreCreate($indexName, "$remote/" . $indexName);
-			echo "done\n";
+		foreach ($indexes as $index => $instance) {
+			$indexName = $instance->getName();
+
+			if ($service->coreIsActive($indexName)) {
+				echo "Reloading configuration...";
+				$service->coreReload($indexName);
+				echo "done\n";
+			} else {
+				echo "Creating configuration...";
+				$service->coreCreate($indexName, "$remote/" . $indexName);
+				echo "done\n";
+			}
 		}
 	}
 }

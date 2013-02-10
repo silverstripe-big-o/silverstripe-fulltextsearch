@@ -256,7 +256,12 @@ abstract class SolrIndex extends SearchIndex {
 			if ($field['base'] == $base) $this->_addField($doc, $object, $field);
 		}
 
-		$this->getService()->addDocument($doc);
+		try {
+			$this->getService()->addDocument($doc);
+		} catch (Exception $e) {
+			SS_Log::log($e, SS_Log::WARN);
+			return false;
+		}
 
 		return $doc;
 	}
@@ -284,11 +289,22 @@ abstract class SolrIndex extends SearchIndex {
 
 	function delete($base, $id, $state) {
 		$documentID = $this->getDocumentIDForState($base, $id, $state);
-		$this->getService()->deleteById($documentID);
+
+		try {
+			$this->getService()->deleteById($documentID);
+		} catch (Exception $e) {
+			SS_Log::log($e, SS_Log::WARN);
+			return false;
+		}
 	}
 
 	function commit() {
-		$this->getService()->commit();
+		try {
+			$this->getService()->commit();
+		} catch (Exception $e) {
+			SS_Log::log($e, SS_Log::WARN);
+			return false;
+		}
 	}
 
 	/**
@@ -301,7 +317,7 @@ abstract class SolrIndex extends SearchIndex {
 	 */
 	public function search(SearchQuery $query, $offset = -1, $limit = -1, $extraParams = array()) {
 		$service = $this->getService();
-		
+
 		$params = $this->getQueryParams($query, $offset, $limit, $extraParams);
 		if ($offset == -1) $offset = $query->start;
 		if ($limit == -1) $limit = $query->limit;

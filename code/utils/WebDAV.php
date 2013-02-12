@@ -13,8 +13,13 @@ class WebDAV {
 	}
 
 	static function exists($url) {
+		// WebDAV expects that checking a directory exists has a trailing slash
+		if (substr($url, -1) != '/') {
+			$url .= '/';
+		}
+
 		$ch = self::curl_init($url, 'PROPFIND');
-		
+
 		$res = curl_exec($ch);
 		$code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
 

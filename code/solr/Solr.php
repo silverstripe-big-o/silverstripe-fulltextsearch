@@ -166,7 +166,11 @@ class Solr_Configure extends BuildTask {
 				echo "done\n";
 			} else {
 				echo "Creating configuration...";
-				$service->coreCreate($indexName, "$remote/" . $indexName);
+				$instanceDir = $indexName;
+				if ($remote) {
+					$instanceDir = "$remote/$instanceDir";
+				}
+				$service->coreCreate($indexName, $instanceDir);
 				echo "done\n";
 			}
 		}
